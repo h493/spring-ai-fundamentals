@@ -7,3 +7,9 @@ spring:
       chat:
         options:
           model: qwen2.5-coder:3b
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.9

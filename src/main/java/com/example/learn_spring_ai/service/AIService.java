@@ -5,8 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -14,6 +19,27 @@ import java.util.Map;
 public class AIService {
 
     private final ChatClient chatClient;
+    private final EmbeddingModel embeddingModel;
+    private final VectorStore vectorStore;
+
+    public float[] getEmbedding(String text){
+        return embeddingModel.embed(text);
+    }
+
+    public void addDocuments(List<String> texts){
+        List<Document> documents = texts.stream()
+                .map(Document::new)
+                .toList();
+        vectorStore.add(documents);
+    }
+
+    public List<Document> search(String query, int topK){
+        return vectorStore.similaritySearch(
+                SearchRequest.builder()
+                        .query(query)
+                        .topK(topK)
+                        .build());
+    }
 
     public String getJoke(String topic){
 

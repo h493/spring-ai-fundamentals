@@ -1,6 +1,11 @@
 spring:
   application:
     name: learn-spring-ai
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vectordb
+    username: postgres
+    password: Pass@123
+    driver-class-name: org.postgresql.Driver
   ai:
     ollama:
       base-url: http://localhost:11434
@@ -13,3 +18,16 @@ spring:
         options:
           model: gpt-4o-mini
           temperature: 0.9
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+
+
+logging:
+  level:
+    org.springframework.ai:
+      chat.client: DEBUG

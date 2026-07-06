@@ -31,6 +31,7 @@ public class AIService {
                 .map(Document::new)
                 .toList();
         vectorStore.add(documents);
+        vectorStore.add(getDummyDocuments());
     }
 
     public List<Document> search(String query, int topK){
@@ -41,7 +42,65 @@ public class AIService {
                         .build());
     }
 
-    public String getJoke(String topic){
+    public String askAI(String prompt){
+
+        // 1. Retrieve the most relevant documents from pgvector for this question.
+        List<Document> documents = vectorStore.similaritySearch(
+                SearchRequest.builder()
+                        .query(prompt)
+                        .topK(2)
+                        .build());
+
+        // 2. Stitch their text together as grounding context.
+        String context = String.join("\n\n",
+                documents.stream().map(Document::getText).toList());
+
+        // 3. Build a RAG prompt that answers strictly from that context.
+        String template = """
+                Answer the question using only the context below.
+                If the answer is not in the context, say you don't know.
+
+                Context:
+                {context}
+
+                Question:
+                {question}
+                """;
+
+        PromptTemplate promptTemplate = new PromptTemplate(template);
+        String renderedPrompt = promptTemplate.render(Map.of(
+                "context", context,
+                "question", prompt));
+
+        // 4. Ask the model with the retrieved context injected.
+        return chatClient.prompt()
+                .user(renderedPrompt)
+                .advisors(new SimpleLoggerAdvisor())
+                .call()
+                .content();
+    }
+
+    public static List<Document> getDummyDocuments() {
+        return List.of(
+                new Document("user1", Map.of(
+                        "name", "Alice",
+                        "age", 25,
+                        "city", "Delhi"
+                )),
+                new Document("user2", Map.of(
+                        "name", "Bob",
+                        "age", 30,
+                        "city", "Mumbai"
+                )),
+                new Document("user3", Map.of(
+                        "name", "Charlie",
+                        "age", 28,
+                        "city", "Bangalore"
+                ))
+        );
+    }
+
+        public String getJoke(String topic){
 
         String systemPrompt = """
                 you are a sarcastic joker , but don't make jokes about politics.

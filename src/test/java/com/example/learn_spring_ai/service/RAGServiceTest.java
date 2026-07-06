@@ -20,4 +20,10 @@ public class RAGServiceTest {
         var response = ragService.askAI("Himanshu chhikara experience");
         System.out.println(response);
     }
+
+    @Test
+    public  void testAskAIWithAdvisor(){
+        String res = ragService.askAIWithAdvisors("What is my name", "Rohit12");
+        System.out.println(res);
+    }
 }

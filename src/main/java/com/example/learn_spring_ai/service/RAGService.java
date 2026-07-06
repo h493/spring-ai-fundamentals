@@ -3,6 +3,8 @@ package com.example.learn_spring_ai.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -74,7 +76,24 @@ public class RAGService {
         // 4. Ask the model with the retrieved context injected.
         return chatClient.prompt()
                 .user(renderedPrompt)
-                .advisors(new SimpleLoggerAdvisor())
+                .call()
+                .content();
+    }
+
+
+    public String askAIWithAdvisors(String prompt, String userId){
+        return chatClient.prompt()
+                .system(s -> s.text("""
+                        You are a friendly, helpful assistant.
+                        Greet the user by their name, {name}, and answer clearly and concisely.
+                        """))
+                .user(prompt)
+                .advisors(
+                        VectorStoreChatMemoryAdvisor.builder(vectorStore)
+                                .defaultTopK(4)
+                                .build()
+                )
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId))
                 .call()
                 .content();
     }

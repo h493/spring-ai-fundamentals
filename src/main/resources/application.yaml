@@ -6,6 +6,10 @@ spring:
     username: postgres
     password: Pass@123
     driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
   ai:
     ollama:
       base-url: http://localhost:11434

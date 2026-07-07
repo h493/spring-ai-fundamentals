@@ -3,7 +3,10 @@ package com.example.learn_spring_ai.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SafeGuardAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
@@ -90,7 +93,16 @@ public class RAGService {
                         .param("name", userId))
                 .user(prompt)
                 .advisors(
+                        new SafeGuardAdvisor(List.of("politics", "gaming")),
                         MessageChatMemoryAdvisor.builder(chatMemory)
+                                .build(),
+                        VectorStoreChatMemoryAdvisor.builder(vectorStore)
+                                .defaultTopK(4)
+                                .build(),
+                        QuestionAnswerAdvisor.builder(vectorStore)
+                                .searchRequest(SearchRequest.builder()
+                                        .filterExpression("file_name == 'Himanshu_Chhikara_Resume_SDE2.pdf'")
+                                        .build())
                                 .build()
                 )
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId))

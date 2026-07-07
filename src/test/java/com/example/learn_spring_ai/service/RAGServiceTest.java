@@ -23,7 +23,7 @@ public class RAGServiceTest {
 
     @Test
     public  void testAskAIWithAdvisor(){
-        String res = ragService.askAIWithAdvisors("What are your view on mobile gaming", "Rohit12");
+        String res = ragService.askAIWithAdvisors("How are you", "Rohit12");
         System.out.println(res);
     }
 }

@@ -93,7 +93,7 @@ public class RAGService {
                         .param("name", userId))
                 .user(prompt)
                 .advisors(
-                        new SafeGuardAdvisor(List.of("politics", "gaming")),
+                      //  new SafeGuardAdvisor(List.of("politics", "gaming")),
                         MessageChatMemoryAdvisor.builder(chatMemory)
                                 .build(),
                         VectorStoreChatMemoryAdvisor.builder(vectorStore)

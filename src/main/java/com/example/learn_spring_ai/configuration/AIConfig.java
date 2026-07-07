@@ -1,5 +1,6 @@
 package com.example.learn_spring_ai.configuration;
 
+import com.example.learn_spring_ai.advisor.TokenUsageAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -14,7 +15,7 @@ public class AIConfig {
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder){
         return builder
-                .defaultAdvisors(new SimpleLoggerAdvisor())
+                .defaultAdvisors(new SimpleLoggerAdvisor(), new TokenUsageAdvisor())
                 .build();
     }
 

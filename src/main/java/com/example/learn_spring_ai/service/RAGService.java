@@ -2,8 +2,8 @@ package com.example.learn_spring_ai.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
@@ -24,8 +24,8 @@ import java.util.Map;
 public class RAGService {
 
     private final ChatClient chatClient;
-    private final EmbeddingModel embeddingModel;
     private final VectorStore vectorStore;
+    private final ChatMemory chatMemory;
 
     @Value("classpath:Himanshu_Chhikara_Resume_SDE2.pdf")
     Resource pdfFile;
@@ -86,15 +86,17 @@ public class RAGService {
                 .system(s -> s.text("""
                         You are a friendly, helpful assistant.
                         Greet the user by their name, {name}, and answer clearly and concisely.
-                        """))
+                        """)
+                        .param("name", userId))
                 .user(prompt)
                 .advisors(
-                        VectorStoreChatMemoryAdvisor.builder(vectorStore)
-                                .defaultTopK(4)
+                        MessageChatMemoryAdvisor.builder(chatMemory)
                                 .build()
                 )
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId))
                 .call()
                 .content();
     }
+
+
 }
